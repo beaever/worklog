@@ -1,20 +1,70 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
+  "globalDependencies": ["**/.env", "**/.env.*local"],
+  "globalEnv": ["NODE_ENV", "CI"],
+  "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+      "dependsOn": ["^build", "typecheck"],
+      "inputs": ["src/**", "package.json", "tsconfig.json"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "outputLogs": "new-only"
+    },
+    "typecheck": {
+      "dependsOn": ["^typecheck"],
+      "inputs": ["src/**", "**/*.ts", "**/*.tsx", "tsconfig.json"],
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "lint": {
-      "dependsOn": ["^build"]
+      "dependsOn": [],
+      "inputs": [
+        "src/**",
+        "**/*.ts",
+        "**/*.tsx",
+        ".eslintrc.*",
+        "eslint.config.*"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "dev": {
+      "dependsOn": ["^typecheck"],
+      "cache": false,
+      "persistent": true
+    },
+    "dev:web": {
+      "cache": false,
+      "persistent": true
+    },
+    "dev:mobile": {
+      "cache": false,
+      "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tests/**", "**/*.test.ts", "**/*.test.tsx"],
+      "outputs": ["coverage/**"],
+      "outputLogs": "new-only"
+    },
+    "test:watch": {
       "cache": false,
       "persistent": true
     },
     "clean": {
       "cache": false
+    },
+    "format": {
+      "dependsOn": [],
+      "inputs": ["src/**", "**/*.ts", "**/*.tsx", "**/*.json", "**/*.md"],
+      "outputs": [],
+      "cache": false
+    },
+    "format:check": {
+      "dependsOn": [],
+      "inputs": ["src/**", "**/*.ts", "**/*.tsx", "**/*.json", "**/*.md"],
+      "outputs": [],
+      "outputLogs": "new-only"
     }
   }
 }

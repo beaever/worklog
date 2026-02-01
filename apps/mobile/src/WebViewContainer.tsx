@@ -33,7 +33,6 @@ export function WebViewContainer() {
 
   return (
     <View style={styles.container}>
-      {/* @ts-expect-error React 18 타입 호환성 문제 - react-native-webview가 아직 완전히 지원하지 않음 */}
       <WebView
         ref={webViewRef}
         source={{ uri: WEB_URL }}

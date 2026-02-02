@@ -1,17 +1,23 @@
-import { useRef, useState } from 'react';
-import { StyleSheet, ActivityIndicator, View } from 'react-native';
+import { useRef, useState, useCallback } from 'react';
+import { StyleSheet, View, useColorScheme } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { getWebViewConfig } from './utils/webview-config';
+import { getDevServerUrl } from './utils/get-dev-server-url';
+import { LoadingScreen } from './components/LoadingScreen';
 
-// iOS 시뮬레이터에서 localhost 대신 Mac의 IP 주소 사용
-// 실제 배포 시에는 환경변수로 설정
-const WEB_URL = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://172.30.1.36:3000';
+const WEB_URL = getDevServerUrl();
 
 export function WebViewContainer() {
   const webViewRef = useRef<WebView>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
-  const handleMessage = (event: WebViewMessageEvent) => {
+  const handleLoadEnd = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  const handleMessage = useCallback((event: WebViewMessageEvent) => {
     try {
       const data = JSON.parse(event.nativeEvent.data) as {
         type: string;
@@ -19,28 +25,33 @@ export function WebViewContainer() {
       };
 
       switch (data.type) {
-        case 'NAVIGATION':
+        case 'LOADING_START':
+          setIsLoading(true);
+          break;
+        case 'LOADING_END':
+          setIsLoading(false);
           break;
         case 'AUTH':
           break;
         default:
-          console.log('Unknown message type:', data.type);
+          break;
       }
     } catch (error) {
       console.error('Failed to parse WebView message:', error);
     }
-  };
+  }, []);
 
   const config = getWebViewConfig();
 
+  const backgroundColor = isDark ? '#030712' : '#ffffff';
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <WebView
         ref={webViewRef}
         source={{ uri: WEB_URL }}
-        style={styles.webview}
-        onLoadStart={() => setIsLoading(true)}
-        onLoadEnd={() => setIsLoading(false)}
+        style={[styles.webview, { backgroundColor }]}
+        onLoadEnd={handleLoadEnd}
         onMessage={handleMessage}
         userAgent={config.userAgent}
         injectedJavaScript={config.injectedJS}
@@ -48,13 +59,16 @@ export function WebViewContainer() {
         domStorageEnabled
         startInLoadingState
         allowsBackForwardNavigationGestures
-        pullToRefreshEnabled
+        pullToRefreshEnabled={false}
+        scalesPageToFit={false}
+        scrollEnabled
+        bounces={false}
+        overScrollMode='never'
+        contentMode='mobile'
+        setBuiltInZoomControls={false}
+        setDisplayZoomControls={false}
       />
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color='#0000ff' />
-        </View>
-      )}
+      {isLoading && <LoadingScreen />}
     </View>
   );
 }
@@ -65,11 +79,5 @@ const styles = StyleSheet.create({
   },
   webview: {
     flex: 1,
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
 });

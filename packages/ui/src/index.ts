@@ -6,6 +6,7 @@ export * from './components/empty-state';
 export * from './components/input';
 export * from './components/textarea';
 export * from './components/dialog';
+export * from './components/responsive-modal';
 export * from './components/label';
 export * from './components/select';
 export * from './lib/utils';

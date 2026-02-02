@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+  ResponsiveModal,
   Button,
   Input,
   Label,
@@ -126,11 +122,13 @@ export function ProjectFormModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='sm:max-w-[500px]'>
-        <DialogHeader>
-          <DialogTitle>{isEdit ? '프로젝트 수정' : '새 프로젝트'}</DialogTitle>
-        </DialogHeader>
+    <ResponsiveModal open={open} onOpenChange={handleOpenChange}>
+      <ResponsiveModal.Content className='sm:max-w-[500px]'>
+        <ResponsiveModal.Header>
+          <ResponsiveModal.Title>
+            {isEdit ? '프로젝트 수정' : '새 프로젝트'}
+          </ResponsiveModal.Title>
+        </ResponsiveModal.Header>
         <form onSubmit={handleSubmit} className='space-y-4'>
           <div className='space-y-2'>
             <Label htmlFor='name'>프로젝트 이름 *</Label>
@@ -203,7 +201,7 @@ export function ProjectFormModal({
             </div>
           </div>
 
-          <DialogFooter>
+          <ResponsiveModal.Footer>
             <Button
               type='button'
               variant='outline'
@@ -214,9 +212,9 @@ export function ProjectFormModal({
             <Button type='submit' disabled={isLoading}>
               {isLoading ? '저장 중...' : isEdit ? '수정' : '생성'}
             </Button>
-          </DialogFooter>
+          </ResponsiveModal.Footer>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModal.Content>
+    </ResponsiveModal>
   );
 }

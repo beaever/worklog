@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button, Input } from '@worklog/ui';
 import { useUserStore } from '@worklog/store';
 import type { User } from '@worklog/types';
+import { generateUUID } from '@/lib/utils';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -61,7 +62,7 @@ export function RegisterForm() {
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const mockUser: User = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       email,
       name: name.trim(),
       role: 'USER',
